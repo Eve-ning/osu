@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+      <PackageReference Include="NUnit" Version="3.13.3" />
+      <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\osu.Desktop\osu.Desktop.csproj" />
+      <ProjectReference Include="..\osu.Game.Benchmarks\osu.Game.Benchmarks.csproj" />
+      <ProjectReference Include="..\osu.Game.Rulesets.Mania.Tests\osu.Game.Rulesets.Mania.Tests.csproj" />
+      <ProjectReference Include="..\osu.Game.Rulesets.Mania\osu.Game.Rulesets.Mania.csproj" />
+      <ProjectReference Include="..\osu.Game.Tests\osu.Game.Tests.csproj" />
+    </ItemGroup>
+
+</Project>
