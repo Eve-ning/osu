@@ -16,7 +16,7 @@ namespace osu.Game.Rulesets.Mania.Difficulty.Skills
         private const double overall_decay_base = 0.30;
         private const double release_threshold = 24;
 
-        protected override double SkillMultiplier => 1;
+        protected override double SkillMultiplier => 2;
         protected override double StrainDecayBase => 1;
 
         private readonly double[] startTimes;
