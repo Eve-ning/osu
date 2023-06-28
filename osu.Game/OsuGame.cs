@@ -45,7 +45,6 @@ using osu.Game.Input.Bindings;
 using osu.Game.IO;
 using osu.Game.Localisation;
 using osu.Game.Online;
-using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Overlays;
 using osu.Game.Overlays.BeatmapListing;
@@ -83,7 +82,7 @@ namespace osu.Game
         /// </summary>
         protected const float SIDE_OVERLAY_OFFSET_RATIO = 0.05f;
 
-        public Toolbar Toolbar;
+        public Toolbar Toolbar { get; private set; }
 
         private ChatOverlay chatOverlay;
 
@@ -436,7 +435,7 @@ namespace osu.Game
                 case LinkAction.Spectate:
                     waitForReady(() => Notifications, _ => Notifications.Post(new SimpleNotification
                     {
-                        Text = @"This link type is not yet supported!",
+                        Text = NotificationsStrings.LinkTypeNotSupported,
                         Icon = FontAwesome.Solid.LifeRing,
                     }));
                     break;
@@ -446,15 +445,7 @@ namespace osu.Game
                     break;
 
                 case LinkAction.OpenUserProfile:
-                    if (!(link.Argument is IUser user))
-                    {
-                        user = int.TryParse(argString, out int userId)
-                            ? new APIUser { Id = userId }
-                            : new APIUser { Username = argString };
-                    }
-
-                    ShowUser(user);
-
+                    ShowUser((IUser)link.Argument);
                     break;
 
                 case LinkAction.OpenWiki:
@@ -486,7 +477,7 @@ namespace osu.Game
             {
                 Notifications.Post(new SimpleErrorNotification
                 {
-                    Text = $"The URL {url} has an unsupported or dangerous protocol and will not be opened.",
+                    Text = NotificationsStrings.UnsupportedOrDangerousUrlProtocol(url),
                 });
 
                 return;
@@ -778,8 +769,8 @@ namespace osu.Game
 
         public override void AttemptExit()
         {
-            // Using PerformFromScreen gives the user a chance to interrupt the exit process if needed.
-            PerformFromScreen(menu => menu.Exit());
+            // The main menu exit implementation gives the user a chance to interrupt the exit process if needed.
+            PerformFromScreen(menu => menu.Exit(), new[] { typeof(MainMenu) });
         }
 
         /// <summary>
@@ -1156,7 +1147,7 @@ namespace osu.Game
                     Schedule(() => Notifications.Post(new SimpleNotification
                     {
                         Icon = FontAwesome.Solid.EllipsisH,
-                        Text = "Subsequent messages have been logged. Click to view log files.",
+                        Text = NotificationsStrings.SubsequentMessagesLogged,
                         Activated = () =>
                         {
                             Storage.GetStorageForDirectory(@"logs").PresentFileExternally(logFile);
@@ -1188,7 +1179,7 @@ namespace osu.Game
                     {
                         Notifications.Post(new SimpleNotification
                         {
-                            Text = $"Disabling tablet support due to error: \"{message}\"",
+                            Text = NotificationsStrings.TabletSupportDisabledDueToError(message),
                             Icon = FontAwesome.Solid.PenSquare,
                             IconColour = Colours.RedDark,
                         });
@@ -1205,7 +1196,7 @@ namespace osu.Game
                 {
                     Schedule(() => Notifications.Post(new SimpleNotification
                     {
-                        Text = @"Encountered tablet warning, your tablet may not function correctly. Click here for a list of all tablets supported.",
+                        Text = NotificationsStrings.EncounteredTabletWarning,
                         Icon = FontAwesome.Solid.PenSquare,
                         IconColour = Colours.YellowDark,
                         Activated = () =>
