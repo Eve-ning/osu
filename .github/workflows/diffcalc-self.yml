@@ -15,5 +15,5 @@ jobs:
           files-sql-query: 'SELECT beatmap_id FROM osu_beatmaps WHERE playmode=3 AND approved=1 AND difficultyrating>7 LIMIT 25'
           osu-git: 'https://github.com/Eve-ning/osu'
           osu-git-branch: 'osu-tools-docker-testbranch'
-          osu-tools-git: 'https://github.com/Eve-ning/osu-tools'
-          osu-tools-git-branch: 'impl-strain-json'
+          osu-tools-git: 'https://github.com/ppy/osu-tools'
+          osu-tools-git-branch: 'master'
