@@ -17,6 +17,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Configuration;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Online;
+using osu.Game.Online.API;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Rooms;
 using osu.Game.Overlays;
@@ -48,6 +49,9 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
         [Resolved]
         private MultiplayerClient client { get; set; }
+
+        [Resolved]
+        private IAPIProvider api { get; set; }
 
         [Resolved(canBeNull: true)]
         private OsuGame game { get; set; }
@@ -251,10 +255,10 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         public override bool OnExiting(ScreenExitEvent e)
         {
             // the room may not be left immediately after a disconnection due to async flow,
-            // so checking the IsConnected status is also required.
-            if (client.Room == null || !client.IsConnected.Value)
+            // so checking the MultiplayerClient / IAPIAccess statuses is also required.
+            if (client.Room == null || !client.IsConnected.Value || api.State.Value != APIState.Online)
             {
-                // room has not been created yet; exit immediately.
+                // room has not been created yet or we're offline; exit immediately.
                 return base.OnExiting(e);
             }
 
@@ -313,16 +317,26 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
             client.ChangeBeatmapAvailability(availability.NewValue).FireAndForget();
 
-            if (availability.NewValue.State != DownloadState.LocallyAvailable)
+            switch (availability.NewValue.State)
             {
-                // while this flow is handled server-side, this covers the edge case of the local user being in a ready state and then deleting the current beatmap.
-                if (client.LocalUser?.State == MultiplayerUserState.Ready)
-                    client.ChangeState(MultiplayerUserState.Idle);
-            }
-            else if (client.LocalUser?.State == MultiplayerUserState.Spectating
-                     && (client.Room?.State == MultiplayerRoomState.WaitingForLoad || client.Room?.State == MultiplayerRoomState.Playing))
-            {
-                onLoadRequested();
+                case DownloadState.LocallyAvailable:
+                    if (client.LocalUser?.State == MultiplayerUserState.Spectating
+                        && (client.Room?.State == MultiplayerRoomState.WaitingForLoad || client.Room?.State == MultiplayerRoomState.Playing))
+                    {
+                        onLoadRequested();
+                    }
+
+                    break;
+
+                case DownloadState.Unknown:
+                    // Don't do anything rash in an unknown state.
+                    break;
+
+                default:
+                    // while this flow is handled server-side, this covers the edge case of the local user being in a ready state and then deleting the current beatmap.
+                    if (client.LocalUser?.State == MultiplayerUserState.Ready)
+                        client.ChangeState(MultiplayerUserState.Idle);
+                    break;
             }
         }
 
