@@ -1,0 +1,19 @@
+name: Difficulty Calculation
+
+on: [push]
+
+jobs:
+  osu-view-sr-calc:
+    runs-on: ubuntu-latest
+    name: Tests Generic Run of osu-view
+    steps:
+      - name: Runs osu! View SR Calculator Action
+        uses: Eve-ning/osu-view-sr-calc@master
+        with:
+          db-url: 'https://github.com/Eve-ning/osu-data-docker/raw/master/rsc/YYYY_MM_DD_performance_mania_top_1000.tar.bz2'
+          files-url: 'https://github.com/Eve-ning/osu-data-docker/raw/master/rsc/YYYY_MM_DD_osu_files.tar.bz2'
+          files-sql-query: 'SELECT beatmap_id FROM osu_beatmaps WHERE playmode=3 AND approved=1 AND difficultyrating>7 LIMIT 25'
+          osu-git: 'https://github.com/Eve-ning/osu'
+          osu-git-branch: 'osu-tools-docker-testbranch'
+          osu-tools-git: 'https://github.com/Eve-ning/osu-tools'
+          osu-tools-git-branch: 'impl-strain-json'
