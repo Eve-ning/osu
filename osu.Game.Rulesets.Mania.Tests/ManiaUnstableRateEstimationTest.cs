@@ -14,6 +14,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using MathNet.Numerics;
 using MathNet.Numerics.Distributions;
+using MathNet.Numerics.Statistics;
 using osu.Game.Rulesets.Mania.Scoring;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Scoring;
@@ -94,7 +95,7 @@ namespace osu.Game.Rulesets.Mania.Tests
 
                 // Firstly, we prepare the hit windows.
                 IEnumerable<double> hitWindows = ManiaPerformanceCalculator
-                                                 .GetLazerHitWindows(mods, overallDifficulty)
+                                                 .GetLegacyHitWindows(mods, false, overallDifficulty)
                                                  .Append(double.MaxValue) // Append Max Value for misses
                                                  .Zip(new[] { 1.2, 1.1, 1, 1, 1, 1 }, ((d0, d1) => d0 * d1))
                                                  .ToArray();
@@ -158,8 +159,8 @@ namespace osu.Game.Rulesets.Mania.Tests
         [Test, Combinatorial]
         public void TestUnstableRate(
             [Values(500d, 50d)] double ur,
-            [Values(100, 0)] int notes,
-            [Values(100, 0)] int holds,
+            [Values(3, 0)] int notes,
+            [Values(3, 0)] int holds,
             [Values(10d, 0d)] double od,
             [Values(typeof(ManiaModDoubleTime), typeof(ManiaModHalfTime), null)] [CanBeNull]
             Type mod,
@@ -191,7 +192,35 @@ namespace osu.Game.Rulesets.Mania.Tests
                 $"Estimated UR {estimatedUr} != {ur}. \n"
                 + $"Note Errors {formatErrors(sample.NoteErrors)} \n"
                 + $"Head Errors {formatErrors(sample.HoldHeadErrors)} \n"
-                + $"Tail Errors {formatErrors(sample.HoldTailErrors)}"
+                + $"Tail Errors {formatErrors(sample.HoldTailErrors)} \n"
+                + $"Judge Counts {string.Join(", ", sample.JudgementCounts)}"
+            );
+        }
+
+        // [TestCaseSource(nameof(SampleJudgementCounts))]
+        [Test, Combinatorial]
+        public void TestSampleJudgements(
+            [Values(500d, 50d)] double ur,
+            [Values(100, 0)] int notes,
+            [Values(100, 0)] int holds,
+            [Values(10d, 0d)] double od,
+            [Values(typeof(ManiaModDoubleTime), typeof(ManiaModHalfTime), null)] [CanBeNull]
+            Type mod,
+            [Values(true, false)] bool isHoldsLegacy
+        )
+        {
+            if (notes == 0 && holds == 0) Assert.Ignore();
+
+            var mods = new Mod[] { };
+
+            if (mod != null) mods = mods.Append((Mod)Activator.CreateInstance(mod)).ToArray();
+            if (isHoldsLegacy) mods = mods.Append(new ManiaModClassic()).ToArray();
+
+            SampleResult sample = SampleJudgementCounts(ur, notes, holds, od, mods, isHoldsLegacy);
+            Assert.AreEqual(
+                sample.NoteErrors.Concat(sample.HoldHeadErrors).Concat(sample.HoldTailErrors).StandardDeviation() * 10,
+                ur,
+                ur * 0.05
             );
         }
 
