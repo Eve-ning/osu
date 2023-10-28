@@ -12,9 +12,9 @@ jobs:
       - name: SR Calc
         uses: Eve-ning/osu-view-sr-calc@master
         with:
-          db-url: 'https://github.com/Eve-ning/osu-data-docker/raw/master/rsc/YYYY_MM_DD_performance_mania_top_1000.tar.bz2'
-          files-url: 'https://github.com/Eve-ning/osu-data-docker/raw/master/rsc/YYYY_MM_DD_osu_files.tar.bz2'
-          files-sql-query: 'SELECT beatmap_id FROM osu_beatmaps WHERE playmode=3 AND approved=1 AND difficultyrating>7 LIMIT 25'
+          db-url: 'https://data.ppy.sh/2023_10_01_performance_mania_top_1000.tar.bz2'
+          files-url: 'https://data.ppy.sh/2023_10_01_osu_files.tar.bz2'
+          files-sql-query: 'SELECT beatmap_id FROM osu_beatmaps WHERE playmode=3 AND approved=1 AND difficultyrating>5'
           osu-git: 'https://github.com/Hydria/osu'
           osu-git-branch: 'ICSHotfix'
           osu-tools-git: 'https://github.com/ppy/osu-tools'
