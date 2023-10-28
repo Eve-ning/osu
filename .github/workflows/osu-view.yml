@@ -10,7 +10,7 @@ jobs:
     name: Osu!view SR calculator
     steps:
       - name: SR Calc
-        uses: Eve-ning/osu-view-sr-calc@v1
+        uses: Eve-ning/osu-view-sr-calc@master
         with:
           db-url: 'https://data.ppy.sh/2023_10_01_performance_mania_top_1000.tar.bz2'
           files-url: 'https://data.ppy.sh/2023_10_01_osu_files.tar.bz2'
